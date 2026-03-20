@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exam Software</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .exam-container { margin: 20px auto; max-width: 600px; }
+        .question { margin-bottom: 20px; }
+        button { padding: 10px 15px; }
+        #results { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="exam-container">
+        <h1>Exam Software</h1>
+        <div id="questions"></div>
+        <button onclick="submitExam()">Submit Exam</button>
+        <button onclick="printExam()">Print Exam</button>
+        <div id="results"></div>
+    </div>
+
+    <script>
+        let questions = [];
+
+        function loadQuestions() {
+            // Load questions from localStorage or set default questions
+            const savedQuestions = localStorage.getItem('questions');
+            if (savedQuestions) {
+                questions = JSON.parse(savedQuestions);
+            } else {
+                questions = [
+                    { question: 'What is 2 + 2?', answer: '', correct: '4' },
+                    { question: 'What is the capital of France?', answer: '', correct: 'Paris' },
+                ];
+                localStorage.setItem('questions', JSON.stringify(questions));
+            }
+            renderQuestions();
+        }
+
+        function renderQuestions() {
+            const questionsDiv = document.getElementById('questions');
+            questionsDiv.innerHTML = '';
+            questions.forEach((q, index) => {
+                const questionHtml = `<div class='question'>
+                    <label>${q.question}</label><br>
+                    <input type='text' onchange="updateAnswer(${index}, this.value)" placeholder='Your answer' />
+                </div>`;
+                questionsDiv.innerHTML += questionHtml;
+            });
+        }
+
+        function updateAnswer(index, value) {
+            questions[index].answer = value;
+            localStorage.setItem('questions', JSON.stringify(questions));
+        }
+
+        function submitExam() {
+            const resultsDiv = document.getElementById('results');
+            let score = 0;
+            questions.forEach(q => {
+                if (q.answer === q.correct) score++;
+            });
+            resultsDiv.innerHTML = `You scored ${score} out of ${questions.length}`;
+        }
+
+        function printExam() {
+            window.print();
+        }
+
+        window.onload = loadQuestions;
+    </script>
+</body>
+</html>
