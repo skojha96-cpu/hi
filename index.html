@@ -1,42 +1,1718 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exam Management System</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>School ERP - Offline First</title>
+  <style>
+    /* ============================== */
+    /* 2. CSS DESIGN SYSTEM */
+    /* ============================== */
+    :root {
+      --bg: #f4f6fb;
+      --panel: #ffffff;
+      --panel-2: #f9fbff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #dbe3f1;
+      --primary: #1f5eff;
+      --primary-2: #153fb4;
+      --danger: #c62828;
+      --success: #146c43;
+      --warning: #b7791f;
+      --shadow: 0 6px 20px rgba(20, 28, 45, 0.08);
+      --radius: 12px;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-7: 32px;
+      --font: Inter, Segoe UI, Roboto, Arial, sans-serif;
+    }
+    body.dark {
+      --bg: #10131a;
+      --panel: #171b24;
+      --panel-2: #1d2330;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --border: #2c3342;
+      --primary: #7aa2ff;
+      --primary-2: #4c74d7;
+      --danger: #ef5350;
+      --success: #34d399;
+      --warning: #fbbf24;
+      --shadow: 0 8px 18px rgba(0,0,0,.35);
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; font-family: var(--font); background: var(--bg); color: var(--text); }
+    a { color: inherit; text-decoration: none; }
+    button, input, select, textarea { font: inherit; }
+    .hidden { display: none !important; }
+    .sr-only { position:absolute; width:1px; height:1px; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); }
+
+    /* ============================== */
+    /* 3. APP LAYOUT */
+    /* ============================== */
+    #appRoot { min-height: 100vh; }
+    .login-wrap {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: var(--space-6);
+      background: linear-gradient(180deg, var(--bg), var(--panel-2));
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .login-card {
+      width: min(460px, 100%);
+      padding: var(--space-6);
+    }
+    .logo-line { display:flex; align-items:center; gap:var(--space-3); margin-bottom:var(--space-4); }
+    .logo-dot { width:40px; height:40px; border-radius:10px; background:var(--primary); display:grid; place-items:center; color:#fff; font-weight:700; }
+    .muted { color: var(--muted); }
+    .grid { display:grid; gap:var(--space-3); }
+    label { font-weight: 600; font-size: .92rem; }
+    input, select, textarea {
+      width: 100%; padding: 10px 12px;
+      border: 1px solid var(--border); border-radius: 10px;
+      background: var(--panel-2); color: var(--text);
+    }
+    input:focus, select:focus, textarea:focus, button:focus { outline:2px solid color-mix(in oklab, var(--primary) 65%, #fff); outline-offset:1px; }
+    .btn {
+      border: none; border-radius: 10px; padding: 10px 14px; font-weight: 600; cursor: pointer;
+      background: var(--primary); color: #fff;
+    }
+    .btn:hover { background: var(--primary-2); }
+    .btn.secondary { background: var(--panel-2); color: var(--text); border:1px solid var(--border); }
+    .btn.danger { background: var(--danger); }
+    .btn.success { background: var(--success); }
+    .btn.warning { background: var(--warning); color:#1f2937; }
+
+    .app-shell { display:grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+    .sidebar {
+      position: sticky; top:0; align-self:start; height:100vh; overflow:auto;
+      background: var(--panel); border-right:1px solid var(--border); padding:var(--space-4);
+    }
+    .nav-title { margin: 0 0 var(--space-3); font-size:.85rem; text-transform: uppercase; color: var(--muted); letter-spacing: .06em; }
+    .nav-list { display:grid; gap:6px; margin-bottom: var(--space-5); }
+    .nav-link {
+      display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:10px;
+      color:var(--text); border:1px solid transparent;
+    }
+    .nav-link.active, .nav-link:hover { background: var(--panel-2); border-color: var(--border); }
+    .main {
+      display:grid;
+      grid-template-rows: auto 1fr;
+      min-width:0;
+    }
+    .topbar {
+      position: sticky; top:0; z-index:20;
+      background: var(--panel); border-bottom:1px solid var(--border);
+      padding: var(--space-3) var(--space-5);
+      display:flex; align-items:center; justify-content:space-between; gap:var(--space-3);
+    }
+    .title-wrap h1 { margin:0; font-size:1.1rem; }
+    .title-wrap small { color: var(--muted); }
+    .top-actions { display:flex; gap:var(--space-2); align-items:center; }
+    .online-dot { width:10px; height:10px; border-radius:50%; background:var(--success); }
+    .offline .online-dot { background:var(--danger); }
+    .content { padding: var(--space-5); }
+
+    .toolbar { display:flex; flex-wrap:wrap; gap:var(--space-2); margin-bottom: var(--space-3); }
+    .stats-grid { display:grid; grid-template-columns: repeat(5, minmax(170px,1fr)); gap:var(--space-3); }
+    .stat { padding:var(--space-4); cursor:pointer; }
+    .stat h3 { margin:0 0 6px; font-size:.9rem; color:var(--muted); }
+    .stat strong { font-size:1.2rem; }
+
+    .panel { padding: var(--space-4); margin-bottom: var(--space-3); }
+    .split-2 { display:grid; grid-template-columns: 1.3fr 1fr; gap:var(--space-3); }
+    .split-3 { display:grid; grid-template-columns: repeat(3,1fr); gap:var(--space-3); }
+
+    table { width:100%; border-collapse:collapse; font-size:.92rem; }
+    th, td { border-bottom:1px solid var(--border); padding:10px; text-align:left; vertical-align: top; }
+    th { position: sticky; top:0; background: var(--panel); z-index: 1; }
+    .table-wrap { max-height: 420px; overflow:auto; border:1px solid var(--border); border-radius: 10px; }
+
+    .badge { display:inline-block; padding:2px 8px; border-radius:999px; font-size:.78rem; font-weight:600; border:1px solid var(--border); }
+    .badge.success { color:var(--success); }
+    .badge.warning { color:var(--warning); }
+    .badge.danger { color:var(--danger); }
+
+    .modal {
+      position: fixed; inset:0; background:rgba(0,0,0,.38);
+      display:none; align-items:center; justify-content:center; padding:var(--space-4); z-index: 50;
+    }
+    .modal.open { display:flex; }
+    .modal .dialog { width:min(920px, 100%); max-height:90vh; overflow:auto; padding:var(--space-5); background:var(--panel); border:1px solid var(--border); border-radius:14px; }
+
+    .drawer {
+      position:fixed; right:-480px; top:0; bottom:0; width:min(460px,95vw); z-index:60;
+      background: var(--panel); border-left:1px solid var(--border); padding:var(--space-4); transition: right .25s;
+      overflow:auto;
+    }
+    .drawer.open { right:0; }
+
+    .toast-wrap { position:fixed; right:14px; bottom:14px; z-index:80; display:grid; gap:8px; }
+    .toast { background:var(--panel); border:1px solid var(--border); border-left:4px solid var(--primary); padding:10px 12px; border-radius:8px; min-width:260px; }
+
+    .tabs { display:flex; flex-wrap:wrap; gap:6px; margin-bottom: var(--space-3); }
+    .tab-btn { background:var(--panel-2); border:1px solid var(--border); border-radius:999px; padding:6px 12px; cursor:pointer; }
+    .tab-btn.active { background:var(--primary); color:#fff; border-color:var(--primary); }
+
+    .pagination { display:flex; gap:6px; align-items:center; margin-top:var(--space-2); }
+    .error-msg { color: var(--danger); font-size:.82rem; }
+
+    .print-area { display:none; }
+
+    @media (max-width: 1180px) {
+      .stats-grid { grid-template-columns: repeat(2, minmax(140px,1fr)); }
+      .split-2, .split-3 { grid-template-columns:1fr; }
+      .app-shell { grid-template-columns: 1fr; }
+      .sidebar { position:fixed; left:-290px; z-index:40; transition:left .25s; width:270px; }
+      .sidebar.open { left:0; }
+      .topbar { padding-inline: 12px; }
+    }
+
+    @media print {
+      body * { visibility: hidden !important; }
+      .print-area, .print-area * { visibility: visible !important; }
+      .print-area {
+        display:block !important;
+        position: fixed; inset:0;
+        background:white; color:black;
+        padding: 12mm;
+      }
+      .receipt-box { border:1px solid #222; padding:8mm; }
+      .no-print { display:none !important; }
+      @page { size:A4; margin:10mm; }
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <h1>Exam Management System</h1>
-    </header>
-    <main>
-        <section id="exam-list">
-            <h2>Available Exams</h2>
-            <ul>
-                <li>Math Exam</li>
-                <li>Science Exam</li>
-                <li>History Exam</li>
-            </ul>
-        </section>
-        <section id="exam-registration">
-            <h2>Register for an Exam</h2>
-            <form id="registration-form">
-                <label for="student-name">Name:</label>
-                <input type="text" id="student-name" required>
-                <label for="exam-select">Select Exam:</label>
-                <select id="exam-select" required>
-                    <option value="math">Math Exam</option>
-                    <option value="science">Science Exam</option>
-                    <option value="history">History Exam</option>
-                </select>
-                <button type="submit">Register</button>
-            </form>
-        </section>
+<div id="appRoot"></div>
+
+<!-- 4. REUSABLE TEMPLATES -->
+<template id="tplLogin">
+  <div class="login-wrap">
+    <div class="login-card card">
+      <div class="logo-line">
+        <div class="logo-dot">ERP</div>
+        <div>
+          <h2 style="margin:0">School ERP</h2>
+          <small class="muted">Offline-first administration suite</small>
+        </div>
+      </div>
+      <form id="loginForm" class="grid" autocomplete="on">
+        <div>
+          <label for="username">Username</label>
+          <input id="username" name="username" required autocomplete="username" />
+        </div>
+        <div>
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" required autocomplete="current-password" />
+        </div>
+        <button class="btn" type="submit">Login</button>
+        <div id="loginError" class="error-msg"></div>
+      </form>
+      <hr style="border:none;border-top:1px solid var(--border);margin:16px 0" />
+      <small class="muted">Demo users: admin, accountant, clerk, teacher | Password: <b>Pass@123</b></small>
+      <p class="muted" style="margin-top:8px;font-size:.86rem">Security note: This is a local offline-first app. For real multi-user deployment, server-side authentication, database security, and API controls are required.</p>
+    </div>
+  </div>
+</template>
+
+<template id="tplAppShell">
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="logo-line" style="margin-bottom:14px;">
+        <div class="logo-dot" id="schoolLogoMini">S</div>
+        <div><strong id="schoolNameMini">School</strong><br /><small class="muted" id="sessionLabel"></small></div>
+      </div>
+      <h3 class="nav-title">Navigation</h3>
+      <nav class="nav-list" id="navList"></nav>
+      <h3 class="nav-title">Quick</h3>
+      <div class="nav-list">
+        <button class="btn secondary" data-action="manual-backup">Manual Backup</button>
+        <button class="btn secondary" data-action="open-notifications">Notifications</button>
+      </div>
+    </aside>
+    <main class="main" id="main">
+      <header class="topbar no-print">
+        <div class="title-wrap">
+          <h1 id="pageTitle">Dashboard</h1>
+          <small id="breadcrumbs">Home</small>
+        </div>
+        <div class="top-actions" id="topActions"></div>
+      </header>
+      <section class="content" id="viewContainer"></section>
     </main>
-    <footer>
-        <p>&copy; 2026 Exam Management System</p>
-    </footer>
-    <script src="script.js"></script>
+  </div>
+</template>
+
+<div class="modal" id="globalModal" aria-hidden="true"><div class="dialog card" id="globalModalBody"></div></div>
+<div class="drawer" id="notificationDrawer"></div>
+<div class="toast-wrap" id="toastWrap"></div>
+<div class="print-area" id="printArea"></div>
+
+<script>
+/* ======================================================
+   5. APP STATE
+====================================================== */
+const AppState = {
+  version: '1.0.0',
+  db: null,
+  currentUser: null,
+  route: '#dashboard',
+  theme: 'light',
+  online: navigator.onLine,
+  inactivityMs: 10 * 60 * 1000,
+  inactivityTimer: null,
+  failedLoginMap: {},
+  chartFallback: false,
+  ui: {
+    studentPage: 1,
+    studentPageSize: 12,
+    studentSearch: '',
+    studentClassFilter: '',
+    studentStatusFilter: '',
+    reportTab: 'fee',
+    settingsTab: 'school'
+  }
+};
+
+/* ======================================================
+   6. INDEXEDDB WRAPPER
+====================================================== */
+const DB = (() => {
+  const DB_NAME = 'school_erp_db';
+  const DB_VERSION = 1;
+  const stores = {
+    students: { keyPath: 'id', indexes: ['admissionNo', 'name', 'className', 'status', 'createdAt', 'isDeleted'] },
+    classes: { keyPath: 'id', indexes: ['name'] },
+    sections: { keyPath: 'id', indexes: ['name', 'classId'] },
+    sessions: { keyPath: 'id', indexes: ['name', 'isCurrent'] },
+    fee_heads: { keyPath: 'id', indexes: ['name', 'type', 'active'] },
+    fee_schemes: { keyPath: 'id', indexes: ['name', 'classId'] },
+    student_fee_assignments: { keyPath: 'id', indexes: ['studentId', 'sessionId'] },
+    fee_transactions: { keyPath: 'id', indexes: ['studentId', 'receiptNo', 'date', 'status', 'createdAt'] },
+    concessions: { keyPath: 'id', indexes: ['name', 'percent'] },
+    users: { keyPath: 'id', indexes: ['username', 'roleId', 'active'] },
+    roles: { keyPath: 'id', indexes: ['name'] },
+    settings: { keyPath: 'id', indexes: ['group'] },
+    backups: { keyPath: 'id', indexes: ['timestamp', 'mode'] },
+    accounts: { keyPath: 'id', indexes: ['date', 'headId', 'type'] },
+    vouchers: { keyPath: 'id', indexes: ['voucherNo', 'date', 'type'] },
+    income_expense_heads: { keyPath: 'id', indexes: ['name', 'type'] },
+    transport_routes: { keyPath: 'id', indexes: ['name'] },
+    vehicles: { keyPath: 'id', indexes: ['number'] },
+    transport_assignments: { keyPath: 'id', indexes: ['studentId', 'routeId'] },
+    messages: { keyPath: 'id', indexes: ['type', 'status', 'createdAt'] },
+    notifications: { keyPath: 'id', indexes: ['type', 'createdAt', 'read'] },
+    audit_logs: { keyPath: 'id', indexes: ['action', 'module', 'createdAt', 'userId'] },
+    sync_queue: { keyPath: 'id', indexes: ['status', 'createdAt'] }
+  };
+
+  const openDB = () => new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onerror = () => reject(req.error);
+    req.onupgradeneeded = e => {
+      const db = e.target.result;
+      Object.entries(stores).forEach(([name, cfg]) => {
+        if (!db.objectStoreNames.contains(name)) {
+          const store = db.createObjectStore(name, { keyPath: cfg.keyPath });
+          cfg.indexes.forEach(idx => store.createIndex(idx, idx, { unique: false }));
+        }
+      });
+    };
+    req.onsuccess = () => resolve(req.result);
+  });
+
+  const tx = (storeNames, mode = 'readonly') => AppState.db.transaction(storeNames, mode);
+  const stamp = (obj, isCreate) => ({ ...obj, updatedAt: new Date().toISOString(), createdAt: isCreate ? new Date().toISOString() : (obj.createdAt || new Date().toISOString()) });
+
+  const add = (store, obj) => new Promise((res, rej) => {
+    const data = stamp(obj, true);
+    const r = tx([store], 'readwrite').objectStore(store).add(data);
+    r.onsuccess = () => res(data);
+    r.onerror = () => rej(r.error);
+  });
+
+  const update = (store, obj) => new Promise((res, rej) => {
+    const data = stamp(obj, false);
+    const r = tx([store], 'readwrite').objectStore(store).put(data);
+    r.onsuccess = () => res(data);
+    r.onerror = () => rej(r.error);
+  });
+
+  const remove = (store, id) => new Promise((res, rej) => {
+    const r = tx([store], 'readwrite').objectStore(store).delete(id);
+    r.onsuccess = () => res(true);
+    r.onerror = () => rej(r.error);
+  });
+
+  const getById = (store, id) => new Promise((res, rej) => {
+    const r = tx([store]).objectStore(store).get(id);
+    r.onsuccess = () => res(r.result || null);
+    r.onerror = () => rej(r.error);
+  });
+
+  const getAll = (store) => new Promise((res, rej) => {
+    const r = tx([store]).objectStore(store).getAll();
+    r.onsuccess = () => res(r.result || []);
+    r.onerror = () => rej(r.error);
+  });
+
+  const query = async (store, predicate = () => true) => (await getAll(store)).filter(predicate);
+  const bulkAdd = async (store, rows = []) => Promise.all(rows.map(r => add(store, r)));
+  const bulkUpdate = async (store, rows = []) => Promise.all(rows.map(r => update(store, r)));
+
+  const snapshotAll = async () => {
+    const out = {};
+    for (const s of Object.keys(stores)) out[s] = await getAll(s);
+    return out;
+  };
+
+  return { openDB, add, update, delete: remove, getById, getAll, query, bulkAdd, bulkUpdate, tx, snapshotAll, stores };
+})();
+
+/* ======================================================
+   7. UTILITY HELPERS
+====================================================== */
+const Utils = (() => {
+  const uid = (p='id') => `${p}_${Math.random().toString(36).slice(2,8)}_${Date.now().toString(36)}`;
+  const formatDate = (d) => new Date(d).toLocaleDateString('en-IN');
+  const formatMoney = (n) => new Intl.NumberFormat('en-IN', { style:'currency', currency:'INR', maximumFractionDigits:0 }).format(Number(n||0));
+  const todayISO = () => new Date().toISOString().slice(0,10);
+  const now = () => new Date().toISOString();
+  const esc = (s='') => String(s).replace(/[&<>'"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[m]));
+  const debounce = (fn, ms=250) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
+  const isValidMobile = (m='') => /^[6-9]\d{9}$/.test(String(m));
+  const parseNum = (v) => Number(String(v||'0').replace(/[^\d.]/g,'')) || 0;
+  const checksum = async (obj) => {
+    const data = new TextEncoder().encode(JSON.stringify(obj));
+    const hash = await crypto.subtle.digest('SHA-256', data);
+    return [...new Uint8Array(hash)].map(b => b.toString(16).padStart(2,'0')).join('');
+  };
+  const download = (name, text, type='application/json') => {
+    const a = document.createElement('a');
+    const blob = new Blob([text], { type });
+    a.href = URL.createObjectURL(blob); a.download = name; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 800);
+  };
+  return { uid, formatDate, formatMoney, todayISO, now, esc, debounce, isValidMobile, parseNum, checksum, download };
+})();
+
+/* ======================================================
+   8. AUTH MODULE
+====================================================== */
+const Auth = (() => {
+  const sessionKey = 'school_erp_session';
+
+  const hashPassword = async (plain) => {
+    const data = new TextEncoder().encode(`schoolerp:${plain}`);
+    const hash = await crypto.subtle.digest('SHA-256', data);
+    return [...new Uint8Array(hash)].map(b => b.toString(16).padStart(2, '0')).join('');
+  };
+
+  const login = async (username, password) => {
+    const user = (await DB.query('users', u => u.username === username && u.active)).at(0);
+    if (!user) throw new Error('Invalid username/password');
+    const passHash = await hashPassword(password);
+    if (passHash !== user.passwordHash) {
+      AppState.failedLoginMap[username] = (AppState.failedLoginMap[username] || 0) + 1;
+      await Audit.log('failed login', 'auth', { username, attempts: AppState.failedLoginMap[username] });
+      throw new Error('Invalid username/password');
+    }
+    AppState.currentUser = user;
+    localStorage.setItem(sessionKey, JSON.stringify({ userId: user.id, at: Date.now() }));
+    await Audit.log('login', 'auth', { username });
+    Notifications.push('system', `${user.name} logged in`, 'success');
+    return user;
+  };
+
+  const restoreSession = async () => {
+    const raw = localStorage.getItem(sessionKey);
+    if (!raw) return null;
+    try {
+      const parsed = JSON.parse(raw);
+      const user = await DB.getById('users', parsed.userId);
+      if (!user?.active) throw new Error('No active session');
+      AppState.currentUser = user;
+      return user;
+    } catch { return null; }
+  };
+
+  const logout = async (isAuto = false) => {
+    if (AppState.currentUser) {
+      await Audit.log('logout', 'auth', { user: AppState.currentUser.username, auto: isAuto });
+    }
+    AppState.currentUser = null;
+    localStorage.removeItem(sessionKey);
+    Router.render();
+  };
+
+  const setInactivityWatch = () => {
+    const reset = () => {
+      clearTimeout(AppState.inactivityTimer);
+      AppState.inactivityTimer = setTimeout(() => {
+        Toast.show('Session ended due to inactivity', 'warning');
+        logout(true);
+      }, AppState.inactivityMs);
+    };
+    ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(ev => document.addEventListener(ev, reset, { passive: true }));
+    reset();
+  };
+
+  return { hashPassword, login, restoreSession, logout, setInactivityWatch };
+})();
+
+/* ======================================================
+   9. PERMISSION MODULE
+====================================================== */
+const Permission = (() => {
+  const can = async (perm) => {
+    if (!AppState.currentUser) return false;
+    const role = await DB.getById('roles', AppState.currentUser.roleId);
+    return !!role?.permissions?.includes(perm);
+  };
+  const ensure = async (perm) => {
+    const ok = await can(perm);
+    if (!ok) throw new Error('Permission denied');
+    return true;
+  };
+  return { can, ensure };
+})();
+
+/* ======================================================
+   19. NOTIFICATIONS MODULE
+====================================================== */
+const Notifications = (() => {
+  const push = async (type, message, level='info') => {
+    const n = { id: Utils.uid('ntf'), type, message, level, read:false, createdAt: Utils.now() };
+    await DB.add('notifications', n);
+    Toast.show(message, level);
+  };
+
+  const list = async () => (await DB.getAll('notifications')).sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+  const markRead = async (id) => {
+    const n = await DB.getById('notifications', id); if (!n) return;
+    n.read = true;
+    await DB.update('notifications', n);
+  };
+
+  const renderDrawer = async () => {
+    const drawer = document.getElementById('notificationDrawer');
+    const rows = await list();
+    drawer.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center"><h3>Notification Center</h3><button class="btn secondary" data-action="close-drawer">Close</button></div>
+      <div class="grid">${rows.map(r => `<div class="card panel"><strong>${Utils.esc(r.type)}</strong>
+      <p style="margin:6px 0">${Utils.esc(r.message)}</p><small class="muted">${Utils.formatDate(r.createdAt)} ${r.read?'| Read':'| Unread'}</small></div>`).join('') || '<p class="muted">No notifications</p>'}</div>`;
+    drawer.classList.add('open');
+  };
+  return { push, list, markRead, renderDrawer };
+})();
+
+/* ======================================================
+   20. AUDIT LOG MODULE
+====================================================== */
+const Audit = (() => {
+  const log = async (action, module, details={}) => {
+    const row = {
+      id: Utils.uid('aud'),
+      action,
+      module,
+      details,
+      userId: AppState.currentUser?.id || 'system',
+      createdAt: Utils.now(),
+      updatedAt: Utils.now()
+    };
+    await DB.add('audit_logs', row);
+  };
+  const list = async () => (await DB.getAll('audit_logs')).sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+  return { log, list };
+})();
+
+/* ======================================================
+   TOAST + DIALOG UTILITIES
+====================================================== */
+const Toast = {
+  show(msg, level='info') {
+    const w = document.getElementById('toastWrap');
+    const d = document.createElement('div');
+    d.className = 'toast';
+    d.style.borderLeftColor = level === 'error' ? 'var(--danger)' : level === 'success' ? 'var(--success)' : level === 'warning' ? 'var(--warning)' : 'var(--primary)';
+    d.textContent = msg;
+    w.appendChild(d);
+    setTimeout(() => d.remove(), 3500);
+  }
+};
+
+const Dialog = {
+  open(html) {
+    document.getElementById('globalModalBody').innerHTML = html;
+    document.getElementById('globalModal').classList.add('open');
+  },
+  close() { document.getElementById('globalModal').classList.remove('open'); },
+  confirm(title, text, ok='Confirm') {
+    return new Promise(resolve => {
+      Dialog.open(`<h3>${Utils.esc(title)}</h3><p>${Utils.esc(text)}</p><div class="toolbar"><button class="btn danger" id="dlgOk">${ok}</button><button class="btn secondary" id="dlgCancel">Cancel</button></div>`);
+      document.getElementById('dlgOk').onclick = () => { Dialog.close(); resolve(true); };
+      document.getElementById('dlgCancel').onclick = () => { Dialog.close(); resolve(false); };
+    });
+  }
+};
+
+/* ======================================================
+   10. DASHBOARD MODULE
+====================================================== */
+const Dashboard = (() => {
+  const calc = async () => {
+    const students = await DB.query('students', s => !s.isDeleted);
+    const txns = await DB.query('fee_transactions', t => t.status !== 'cancelled');
+    const today = Utils.todayISO();
+    const month = today.slice(0,7);
+    const todayTx = txns.filter(t => t.date === today);
+    const monthTx = txns.filter(t => t.date.startsWith(month));
+    const pending = students.filter(s => (s.feeDue || 0) > 0).length;
+    const recent = (await Audit.list()).slice(0,8);
+    const byClass = students.reduce((a,s)=>{a[s.className]=(a[s.className]||0)+1; return a;},{});
+    return {
+      totalStudents: students.length,
+      newAdmissions: students.filter(s => s.admissionDate?.startsWith(new Date().getFullYear().toString())).length,
+      todayCollection: todayTx.reduce((a,t)=>a+t.totalAmount,0),
+      monthlyCollection: monthTx.reduce((a,t)=>a+t.totalAmount,0),
+      pending,
+      recent,
+      byClass,
+      birthdays: students.filter(s => s.dob?.slice(5) === today.slice(5)).slice(0,8),
+      alerts: [
+        `${pending} students have pending dues.`,
+        `${(await DB.getAll('sync_queue')).filter(x=>x.status==='pending').length} sync items pending.`
+      ]
+    };
+  };
+
+  const renderMiniChart = (labels, values, w=480, h=140) => {
+    const max = Math.max(1, ...values);
+    const step = w / Math.max(1, labels.length - 1);
+    const points = values.map((v,i)=>`${i*step},${h-(v/max)*(h-20)-10}`).join(' ');
+    return `<svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}" aria-label="chart"><polyline fill="none" stroke="var(--primary)" stroke-width="3" points="${points}"/>${labels.map((l,i)=>`<text x="${i*step}" y="${h-2}" font-size="10" fill="var(--muted)">${l}</text>`).join('')}</svg>`;
+  };
+
+  const view = async () => {
+    const d = await calc();
+    const txns = await DB.getAll('fee_transactions');
+    const dates = [...Array(7)].map((_,i)=>{ const dt = new Date(); dt.setDate(dt.getDate()-(6-i)); return dt.toISOString().slice(0,10); });
+    const vals = dates.map(ds => txns.filter(t=>t.date===ds && t.status!=='cancelled').reduce((a,t)=>a+t.totalAmount,0));
+    const headToday = txns.filter(t=>t.date===Utils.todayISO() && t.status!=='cancelled').flatMap(t=>t.items||[])
+      .reduce((a,x)=>{a[x.head]=(a[x.head]||0)+x.amount;return a;},{});
+
+    return `<div class="stats-grid">
+      <div class="card stat" data-jump="#students"><h3>Total Students</h3><strong>${d.totalStudents}</strong></div>
+      <div class="card stat" data-jump="#students?filter=new"><h3>New Admissions</h3><strong>${d.newAdmissions}</strong></div>
+      <div class="card stat" data-jump="#fees?filter=today"><h3>Today's Collection</h3><strong>${Utils.formatMoney(d.todayCollection)}</strong></div>
+      <div class="card stat" data-jump="#fees?filter=month"><h3>Monthly Collection</h3><strong>${Utils.formatMoney(d.monthlyCollection)}</strong></div>
+      <div class="card stat" data-jump="#reports?tab=defaulter"><h3>Pending Dues</h3><strong>${d.pending}</strong></div>
+    </div>
+    <div class="split-2" style="margin-top:12px;">
+      <div class="card panel"><h3>Last 7 Days Fee Collection</h3>${renderMiniChart(dates.map(x=>x.slice(8)), vals)}
+      <div class="muted">Fallback native SVG chart (works offline)</div></div>
+      <div class="card panel"><h3>Today's Collection Head-wise</h3>
+      ${Object.keys(headToday).length ? `<table><tbody>${Object.entries(headToday).map(([k,v])=>`<tr><td>${Utils.esc(k)}</td><td>${Utils.formatMoney(v)}</td></tr>`).join('')}</tbody></table>` : '<p class="muted">No collection today.</p>'}
+      </div>
+    </div>
+    <div class="split-3">
+      <div class="card panel"><h3>Class-wise Student Summary</h3><table><tbody>${Object.entries(d.byClass).map(([k,v])=>`<tr><td>${Utils.esc(k)}</td><td>${v}</td></tr>`).join('')}</tbody></table></div>
+      <div class="card panel"><h3>Recent Activity</h3><ul>${d.recent.map(r=>`<li>${Utils.esc(r.action)} • ${Utils.esc(r.module)} • <small>${Utils.formatDate(r.createdAt)}</small></li>`).join('')||'<li class="muted">No activity</li>'}</ul></div>
+      <div class="card panel"><h3>Birthdays & Alerts</h3><p><b>Today's Birthdays:</b> ${d.birthdays.map(x=>Utils.esc(x.name)).join(', ') || 'None'}</p><ul>${d.alerts.map(a=>`<li>${Utils.esc(a)}</li>`).join('')}</ul></div>
+    </div>`;
+  };
+  return { view };
+})();
+
+/* ======================================================
+   11. STUDENTS MODULE
+====================================================== */
+const Students = (() => {
+  const fields = ['admissionNo','rollNo','name','className','sectionName','gender','dob','fatherName','motherName','guardianMobile','alternateMobile','address','caste','religion','category','aadhaarNo','house','photo','admissionDate','transportOpted','routeName','status','notes'];
+
+  const validate = async (form, id=null) => {
+    const errs = {};
+    if (!form.admissionNo?.trim()) errs.admissionNo = 'Admission No required';
+    if (!form.name?.trim()) errs.name = 'Student name required';
+    if (!form.className) errs.className = 'Class required';
+    if (!Utils.isValidMobile(form.guardianMobile||'')) errs.guardianMobile = 'Valid mobile required';
+    if (form.alternateMobile && !Utils.isValidMobile(form.alternateMobile)) errs.alternateMobile = 'Alternate mobile invalid';
+    if (form.aadhaarNo && !/^\d{12}$/.test(form.aadhaarNo)) errs.aadhaarNo = 'Aadhaar must be 12 digits';
+    const dupe = await DB.query('students', s => s.admissionNo === form.admissionNo && s.id !== id && !s.isDeleted);
+    if (dupe.length) errs.admissionNo = 'Admission No must be unique';
+    return errs;
+  };
+
+  const upsert = async (form, id=null) => {
+    const errors = await validate(form, id);
+    if (Object.keys(errors).length) return { ok:false, errors };
+    const row = { ...form, id: id || Utils.uid('stu'), feeDue: form.feeDue || 0, isDeleted:false, createdAt: form.createdAt || Utils.now(), updatedAt: Utils.now() };
+    if (id) await DB.update('students', row); else await DB.add('students', row);
+    await Audit.log(id ? 'edit' : 'add', 'students', { id: row.id, name: row.name });
+    await Backup.auto('student mutation');
+    return { ok:true };
+  };
+
+  const softDelete = async (id) => {
+    const st = await DB.getById('students', id);
+    if (!st) return;
+    st.isDeleted = true;
+    await DB.update('students', st);
+    await Audit.log('delete', 'students', { id, name: st.name });
+    await Backup.auto('student delete');
+  };
+
+  const listFiltered = async () => {
+    const q = AppState.ui.studentSearch.trim().toLowerCase();
+    const cls = AppState.ui.studentClassFilter;
+    const status = AppState.ui.studentStatusFilter;
+    const rows = await DB.query('students', s => !s.isDeleted &&
+      (!q || [s.name,s.admissionNo,s.guardianMobile,s.address].some(x => String(x||'').toLowerCase().includes(q))) &&
+      (!cls || s.className === cls) && (!status || s.status === status)
+    );
+    return rows.sort((a,b)=>a.name.localeCompare(b.name));
+  };
+
+  const formHtml = async (data={}) => {
+    const classes = await DB.getAll('classes');
+    const sections = await DB.getAll('sections');
+    const routes = await DB.getAll('transport_routes');
+    return `<form id="studentForm" class="grid" data-id="${data.id||''}" style="grid-template-columns: repeat(3,1fr);">
+      ${[
+        ['Admission No','admissionNo'],['Roll No','rollNo'],['Student Name','name'],['DOB','dob','date'],['Gender','gender','select',['Male','Female','Other']],['Admission Date','admissionDate','date'],
+        ['Class','className','select',classes.map(c=>c.name)],['Section','sectionName','select',sections.map(s=>s.name)],['Status','status','select',['active','inactive','withdrawn']],
+        ['Father Name','fatherName'],['Mother Name','motherName'],['Guardian Mobile','guardianMobile'],['Alternate Mobile','alternateMobile'],['Address','address'],['Caste','caste'],
+        ['Religion','religion'],['Category','category'],['Aadhaar No','aadhaarNo'],['House','house'],['Photo URL','photo'],['Transport Opted','transportOpted','select',['No','Yes']],['Route','routeName','select',['',...routes.map(r=>r.name)]],['Notes','notes']
+      ].map(([label,name,type='text',opts=[]]) => `<div><label>${label}</label>${type==='select' ? `<select name="${name}">${opts.map(o=>`<option ${data[name]===o?'selected':''}>${Utils.esc(o)}</option>`).join('')}</select>` : `<input type="${type}" name="${name}" value="${Utils.esc(data[name]||'')}" ${['admissionNo','name','guardianMobile'].includes(name)?'required':''}/>`}<div class="error-msg" data-err="${name}"></div></div>`).join('')}
+      <div style="grid-column:1/-1" class="toolbar"><button class="btn">${data.id?'Update':'Create'} Student</button><button type="button" class="btn secondary" data-action="close-modal">Cancel</button></div>
+    </form>`;
+  };
+
+  const view = async () => {
+    const rows = await listFiltered();
+    const classes = await DB.getAll('classes');
+    const start = (AppState.ui.studentPage-1)*AppState.ui.studentPageSize;
+    const pageRows = rows.slice(start, start+AppState.ui.studentPageSize);
+    return `<div class="card panel">
+      <div class="toolbar">
+        <button class="btn" data-action="add-student">Add Student</button>
+        <button class="btn secondary" data-action="bulk-student">Bulk Import/Export</button>
+        <input placeholder="Search name/admission/mobile/address" id="studentSearch" value="${Utils.esc(AppState.ui.studentSearch)}" />
+        <select id="studentClassFilter"><option value="">All Classes</option>${classes.map(c=>`<option value="${c.name}" ${AppState.ui.studentClassFilter===c.name?'selected':''}>${c.name}</option>`).join('')}</select>
+        <select id="studentStatusFilter"><option value="">All Status</option>${['active','inactive','withdrawn'].map(s=>`<option ${AppState.ui.studentStatusFilter===s?'selected':''}>${s}</option>`).join('')}</select>
+      </div>
+      <div class="table-wrap"><table><thead><tr><th>Adm No</th><th>Name</th><th>Class</th><th>Section</th><th>Mobile</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+      ${pageRows.map(s=>`<tr><td>${Utils.esc(s.admissionNo)}</td><td>${Utils.esc(s.name)}</td><td>${Utils.esc(s.className)}</td><td>${Utils.esc(s.sectionName||'')}</td><td>${Utils.esc(s.guardianMobile)}</td><td><span class="badge ${s.status==='active'?'success':s.status==='inactive'?'warning':'danger'}">${Utils.esc(s.status)}</span></td><td>
+      <button class="btn secondary" data-action="view-student" data-id="${s.id}">View</button>
+      <button class="btn secondary" data-action="edit-student" data-id="${s.id}">Edit</button>
+      <button class="btn danger" data-action="delete-student" data-id="${s.id}">Delete</button></td></tr>`).join('') || '<tr><td colspan="7" class="muted">No students found.</td></tr>'}
+      </tbody></table></div>
+      <div class="pagination"><button class="btn secondary" data-action="student-prev">Prev</button><span>Page ${AppState.ui.studentPage} / ${Math.max(1, Math.ceil(rows.length/AppState.ui.studentPageSize))}</span><button class="btn secondary" data-action="student-next">Next</button><span class="muted">Total ${rows.length}</span></div>
+    </div>`;
+  };
+
+  const bulkDialog = () => {
+    Dialog.open(`<h3>Bulk Operations</h3><p class="muted">Excel import via XLSX CDN if available; fallback CSV parser always available.</p>
+      <ol><li>Template columns: ${fields.join(', ')}</li><li>Preview validates mobile, duplicate admission no, class mapping.</li><li>Bulk image mapping by admissionNo possible through Photo URL column.</li></ol>
+      <textarea id="bulkCsv" rows="8" placeholder="Paste CSV with header row"></textarea>
+      <div class="toolbar"><button class="btn" id="bulkPreviewBtn">Preview</button><button class="btn success" id="bulkImportBtn">Commit Import</button><button class="btn secondary" id="bulkExportBtn">Export CSV</button></div>
+      <div id="bulkPreview"></div>`);
+  };
+
+  return { view, formHtml, upsert, softDelete, validate, bulkDialog, listFiltered };
+})();
+
+/* ======================================================
+   12. FEES MASTER MODULE
+====================================================== */
+const FeesMaster = (() => {
+  const view = async () => {
+    const heads = await DB.getAll('fee_heads');
+    const concessions = await DB.getAll('concessions');
+    const schemes = await DB.getAll('fee_schemes');
+    return `<div class="split-3">
+      <div class="card panel"><h3>Fee Heads</h3><form id="feeHeadForm" class="grid">
+        <input name="name" placeholder="Head name" required />
+        <select name="type"><option>monthly</option><option>quarterly</option><option>annual</option><option>one-time</option></select>
+        <input name="amount" type="number" min="0" placeholder="Amount" required />
+        <button class="btn">Add Head</button></form>
+        <table><tbody>${heads.map(h=>`<tr><td>${Utils.esc(h.name)}</td><td>${Utils.esc(h.type)}</td><td>${Utils.formatMoney(h.amount)}</td></tr>`).join('')}</tbody></table>
+      </div>
+      <div class="card panel"><h3>Concession Categories</h3><form id="concessionForm" class="grid"><input name="name" placeholder="Category" required /><input name="percent" type="number" min="0" max="100" required /><button class="btn">Add Concession</button></form>
+      <table><tbody>${concessions.map(c=>`<tr><td>${Utils.esc(c.name)}</td><td>${c.percent}%</td></tr>`).join('')}</tbody></table></div>
+      <div class="card panel"><h3>Fee Schemes & Rules</h3>
+        <form id="schemeForm" class="grid"><input name="name" placeholder="Scheme name" required/><input name="classId" placeholder="Class ID/Name"/><input name="lateFineRule" placeholder="Late fine rule"/><input name="transportRule" placeholder="Transport rule"/><input name="optionalFee" placeholder="Optional facility fee"/><button class="btn">Save Scheme</button></form>
+        <table><tbody>${schemes.map(s=>`<tr><td>${Utils.esc(s.name)}</td><td>${Utils.esc(s.classId||'-')}</td></tr>`).join('')}</tbody></table>
+      </div>
+    </div>`;
+  };
+  return { view };
+})();
+
+/* ======================================================
+   13. FEES TRANSACTION MODULE
+====================================================== */
+const FeesTxn = (() => {
+  const nextReceipt = async () => `RCPT-${String((await DB.getAll('fee_transactions')).length + 1).padStart(5,'0')}`;
+  const calcPayable = async (studentId) => {
+    const st = await DB.getById('students', studentId); if (!st) return null;
+    const assign = (await DB.query('student_fee_assignments', a => a.studentId === studentId)).at(0);
+    const heads = await DB.getAll('fee_heads');
+    const base = heads.reduce((a,h)=>a+Utils.parseNum(h.amount),0);
+    const concession = Utils.parseNum(assign?.concessionAmount || 0);
+    const due = Math.max(0, base - concession + Utils.parseNum(st.feeDue || 0));
+    return { st, assign, due, base, concession, heads };
+  };
+
+  const collect = async ({ studentId, items, discount=0, fine=0, paidAmount, mode='cash' }) => {
+    const recNo = await nextReceipt();
+    const totalItems = items.reduce((a,i)=>a+Utils.parseNum(i.amount),0);
+    const total = Math.max(0, totalItems + Utils.parseNum(fine) - Utils.parseNum(discount));
+    if (paidAmount <= 0 || paidAmount > total) throw new Error('Paid amount invalid');
+    const row = {
+      id: Utils.uid('fee'),
+      receiptNo: recNo,
+      studentId,
+      date: Utils.todayISO(),
+      items,
+      fine: Utils.parseNum(fine),
+      discount: Utils.parseNum(discount),
+      totalAmount: total,
+      paidAmount: Utils.parseNum(paidAmount),
+      balance: total - Utils.parseNum(paidAmount),
+      mode,
+      status:'active',
+      cancelReason:''
+    };
+    await DB.add('fee_transactions', row);
+    const st = await DB.getById('students', studentId);
+    st.feeDue = row.balance;
+    await DB.update('students', st);
+    await Accounts.autoIncomeFromFee(row, st);
+    await Audit.log('fee collection', 'fees', { receiptNo: recNo, student: st.name, total });
+    await Backup.auto('fee collection');
+    await Notifications.push('fees', `Fee collected: ${recNo} ${st.name}`, 'success');
+    return row;
+  };
+
+  const cancelReceipt = async (id, reason) => {
+    const t = await DB.getById('fee_transactions', id); if (!t) return;
+    t.status='cancelled'; t.cancelReason=reason || 'Not specified';
+    await DB.update('fee_transactions', t);
+    await Audit.log('fee cancellation', 'fees', { receiptNo: t.receiptNo, reason });
+    await Backup.auto('receipt cancel');
+  };
+
+  const renderReceipt = async (receiptId, duplicate=false) => {
+    const t = await DB.getById('fee_transactions', receiptId); if (!t) return;
+    const st = await DB.getById('students', t.studentId);
+    const school = await Settings.getSchoolProfile();
+    const p = document.getElementById('printArea');
+    p.innerHTML = `<div class="receipt-box"><h2>${Utils.esc(school.name)}</h2><p>${Utils.esc(school.address)} | ${Utils.esc(school.contact)}</p>
+      <h3>${duplicate?'Duplicate ':''}Fee Receipt</h3><p>Receipt: ${Utils.esc(t.receiptNo)} | Date: ${Utils.formatDate(t.date)}</p>
+      <p>Student: ${Utils.esc(st.name)} (${Utils.esc(st.admissionNo)}) | Class: ${Utils.esc(st.className)}-${Utils.esc(st.sectionName||'')}</p>
+      <table><thead><tr><th>Head</th><th>Amount</th></tr></thead><tbody>${t.items.map(i=>`<tr><td>${Utils.esc(i.head)}</td><td>${Utils.formatMoney(i.amount)}</td></tr>`).join('')}
+      <tr><td>Fine</td><td>${Utils.formatMoney(t.fine)}</td></tr><tr><td>Discount</td><td>${Utils.formatMoney(t.discount)}</td></tr>
+      <tr><th>Total</th><th>${Utils.formatMoney(t.totalAmount)}</th></tr><tr><th>Paid</th><th>${Utils.formatMoney(t.paidAmount)}</th></tr><tr><th>Balance</th><th>${Utils.formatMoney(t.balance)}</th></tr>
+      </tbody></table><small>Printed at ${new Date().toLocaleString('en-IN')}</small></div>`;
+    window.print();
+  };
+
+  const view = async () => {
+    const students = await DB.query('students', s=>!s.isDeleted && s.status==='active');
+    const txns = (await DB.getAll('fee_transactions')).sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+    return `<div class="split-2">
+      <div class="card panel"><h3>Collect Fee</h3><form id="feeCollectForm" class="grid">
+      <select name="studentId" required><option value="">Select Student</option>${students.map(s=>`<option value="${s.id}">${Utils.esc(s.admissionNo)} - ${Utils.esc(s.name)} (${Utils.esc(s.className)})</option>`).join('')}</select>
+      <textarea name="heads" rows="3" placeholder='Fee heads JSON e.g. [{"head":"Tuition","amount":2000}]' required></textarea>
+      <div class="split-3"><input name="fine" type="number" placeholder="Late fine" /><input name="discount" type="number" placeholder="Discount" /><input name="paidAmount" type="number" placeholder="Paid amount" required /></div>
+      <select name="mode"><option>cash</option><option>upi</option><option>card</option><option>bank</option></select>
+      <button class="btn">Generate Receipt</button></form>
+      </div>
+      <div class="card panel"><h3>Receipts</h3><div class="table-wrap"><table><thead><tr><th>No</th><th>Date</th><th>Student</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+      ${txns.map(t=>`<tr><td>${Utils.esc(t.receiptNo)}</td><td>${Utils.formatDate(t.date)}</td><td>${Utils.esc((students.find(s=>s.id===t.studentId)||{}).name||t.studentId)}</td><td>${Utils.formatMoney(t.totalAmount)}</td><td>${Utils.esc(t.status)}</td>
+      <td><button class="btn secondary" data-action="print-receipt" data-id="${t.id}">Print</button><button class="btn secondary" data-action="reprint-receipt" data-id="${t.id}">Reprint</button>${t.status!=='cancelled'?`<button class="btn danger" data-action="cancel-receipt" data-id="${t.id}">Cancel</button>`:''}</td></tr>`).join('')}</tbody></table></div></div>
+    </div>`;
+  };
+  return { view, collect, cancelReceipt, calcPayable, renderReceipt };
+})();
+
+/* ======================================================
+   14. ACCOUNTS MODULE
+====================================================== */
+const Accounts = (() => {
+  const nextVoucherNo = async () => `VCH-${String((await DB.getAll('vouchers')).length+1).padStart(5,'0')}`;
+
+  const addVoucher = async ({ type, amount, headId, note, date=Utils.todayISO(), ref='' }) => {
+    const voucherNo = await nextVoucherNo();
+    const row = { id: Utils.uid('vch'), voucherNo, type, amount:Utils.parseNum(amount), headId, note, date, ref };
+    await DB.add('vouchers', row);
+    await DB.add('accounts', { id: Utils.uid('acc'), voucherNo, type, amount:Utils.parseNum(amount), headId, date, note, ref, source: 'manual' });
+    await Audit.log('add', 'accounts', { voucherNo, type, amount });
+    await Backup.auto('voucher add');
+    return row;
+  };
+
+  const autoIncomeFromFee = async (fee, student) => {
+    const head = (await DB.query('income_expense_heads', h => h.name === 'Fee Collection' && h.type==='income'))[0];
+    if (!head) return;
+    await DB.add('accounts', {
+      id: Utils.uid('acc'),
+      voucherNo: `AUTO-${fee.receiptNo}`,
+      type:'income',
+      amount: fee.paidAmount,
+      headId: head.id,
+      date: fee.date,
+      note: `Auto from fee receipt ${fee.receiptNo} (${student.name})`,
+      ref: fee.receiptNo,
+      source: 'fees'
+    });
+  };
+
+  const view = async () => {
+    const heads = await DB.getAll('income_expense_heads');
+    const ledger = (await DB.getAll('accounts')).sort((a,b)=>new Date(b.date)-new Date(a.date));
+    return `<div class="split-2">
+      <div class="card panel"><h3>Income/Expense Entry</h3><form id="voucherForm" class="grid">
+        <select name="type"><option value="income">Income</option><option value="expense">Expense</option></select>
+        <select name="headId">${heads.map(h=>`<option value="${h.id}">${Utils.esc(h.name)} (${h.type})</option>`).join('')}</select>
+        <input name="amount" type="number" min="0" step="0.01" required placeholder="Amount" />
+        <input name="date" type="date" value="${Utils.todayISO()}" />
+        <input name="ref" placeholder="Reference" />
+        <textarea name="note" placeholder="Notes"></textarea>
+        <button class="btn">Post Voucher</button>
+      </form></div>
+      <div class="card panel"><h3>Ledger</h3><div class="table-wrap"><table><thead><tr><th>Date</th><th>Voucher</th><th>Type</th><th>Head</th><th>Amount</th><th>Note</th></tr></thead><tbody>
+      ${ledger.map(l=>`<tr><td>${Utils.formatDate(l.date)}</td><td>${Utils.esc(l.voucherNo||'-')}</td><td>${Utils.esc(l.type)}</td><td>${Utils.esc((heads.find(h=>h.id===l.headId)||{}).name||l.headId)}</td><td>${Utils.formatMoney(l.amount)}</td><td>${Utils.esc(l.note||'')}</td></tr>`).join('')}</tbody></table></div></div>
+    </div>`;
+  };
+
+  return { view, addVoucher, autoIncomeFromFee };
+})();
+
+/* ======================================================
+   15. REPORTS MODULE
+====================================================== */
+const Reports = (() => {
+  const feeDefaulter = async () => (await DB.query('students', s=>!s.isDeleted && (s.feeDue||0)>0)).map(s=>({name:s.name,className:s.className,due:s.feeDue,mobile:s.guardianMobile}));
+  const dailyCollection = async (date=Utils.todayISO()) => (await DB.query('fee_transactions', t=>t.date===date && t.status!=='cancelled'));
+
+  const renderPrintReport = async (title, htmlBody) => {
+    const school = await Settings.getSchoolProfile();
+    const p = document.getElementById('printArea');
+    p.innerHTML = `<div><h2>${Utils.esc(school.name)}</h2><p>${Utils.esc(school.address)} | ${Utils.esc(school.contact)}</p><h3>${Utils.esc(title)}</h3>${htmlBody}<p>Printed: ${new Date().toLocaleString('en-IN')}</p></div>`;
+    window.print();
+  };
+
+  const view = async () => {
+    const tab = AppState.ui.reportTab;
+    const defaulters = await feeDefaulter();
+    const fees = await DB.getAll('fee_transactions');
+    const students = await DB.query('students', s=>!s.isDeleted);
+    const accounts = await DB.getAll('accounts');
+    const income = accounts.filter(a=>a.type==='income').reduce((a,b)=>a+b.amount,0);
+    const expense = accounts.filter(a=>a.type==='expense').reduce((a,b)=>a+b.amount,0);
+
+    const content = tab === 'fee' ? `<h3>Fee Reports</h3><div class="split-2">
+      <div class="card panel"><h4>Defaulter Report</h4><table><thead><tr><th>Name</th><th>Class</th><th>Due</th><th>Mobile</th></tr></thead><tbody>${defaulters.map(d=>`<tr><td>${Utils.esc(d.name)}</td><td>${Utils.esc(d.className)}</td><td>${Utils.formatMoney(d.due)}</td><td>${Utils.esc(d.mobile)}</td></tr>`).join('') || '<tr><td colspan="4">No defaulters</td></tr>'}</tbody></table><button class="btn secondary" data-action="print-defaulters">Print</button></div>
+      <div class="card panel"><h4>Cancelled Receipts</h4><table><tbody>${fees.filter(f=>f.status==='cancelled').map(f=>`<tr><td>${Utils.esc(f.receiptNo)}</td><td>${Utils.esc(f.cancelReason)}</td></tr>`).join('') || '<tr><td>No cancelled receipts</td></tr>'}</tbody></table></div>
+    </div>` : tab === 'student' ? `<h3>Student Reports</h3>
+    <div class="card panel"><table><thead><tr><th>Class</th><th>Total</th></tr></thead><tbody>${Object.entries(students.reduce((a,s)=>{a[s.className]=(a[s.className]||0)+1;return a;},{})).map(([k,v])=>`<tr><td>${Utils.esc(k)}</td><td>${v}</td></tr>`).join('')}</tbody></table>
+      <p>Custom filters available via Students module toolbar (class, status, keyword, address).</p></div>` : `<h3>Accounts Reports</h3><div class="card panel"><p>Income: ${Utils.formatMoney(income)} | Expense: ${Utils.formatMoney(expense)} | Net: ${Utils.formatMoney(income-expense)}</p>
+      <button class="btn secondary" data-action="print-accounts-summary">Print Financial Summary</button>
+      <table><thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Ref</th></tr></thead><tbody>${accounts.map(a=>`<tr><td>${Utils.formatDate(a.date)}</td><td>${Utils.esc(a.type)}</td><td>${Utils.formatMoney(a.amount)}</td><td>${Utils.esc(a.ref||'')}</td></tr>`).join('')}</tbody></table></div>`;
+
+    return `<div class="tabs">
+      ${['fee','student','accounts'].map(t=>`<button class="tab-btn ${tab===t?'active':''}" data-action="report-tab" data-tab="${t}">${t.toUpperCase()} REPORTS</button>`).join('')}
+    </div>${content}`;
+  };
+
+  return { view, feeDefaulter, dailyCollection, renderPrintReport };
+})();
+
+/* ======================================================
+   16. TRANSPORT MODULE
+====================================================== */
+const Transport = (() => {
+  const view = async () => {
+    const routes = await DB.getAll('transport_routes');
+    const vehicles = await DB.getAll('vehicles');
+    const assigns = await DB.getAll('transport_assignments');
+    const students = await DB.query('students', s=>!s.isDeleted);
+    return `<div class="split-3">
+      <div class="card panel"><h3>Route Master</h3><form id="routeForm" class="grid"><input name="name" required placeholder="Route name"/><input name="fee" type="number" min="0" placeholder="Route fee"/><button class="btn">Add Route</button></form>
+      <table><tbody>${routes.map(r=>`<tr><td>${Utils.esc(r.name)}</td><td>${Utils.formatMoney(r.fee)}</td></tr>`).join('')}</tbody></table></div>
+      <div class="card panel"><h3>Vehicle Master</h3><form id="vehicleForm" class="grid"><input name="number" required placeholder="Vehicle No"/><input name="driver" placeholder="Driver"/><input name="mobile" placeholder="Driver mobile"/><button class="btn">Add Vehicle</button></form>
+      <table><tbody>${vehicles.map(v=>`<tr><td>${Utils.esc(v.number)}</td><td>${Utils.esc(v.driver||'-')}</td></tr>`).join('')}</tbody></table></div>
+      <div class="card panel"><h3>Student Route Assignment</h3><form id="transportAssignForm" class="grid"><select name="studentId">${students.map(s=>`<option value="${s.id}">${Utils.esc(s.name)}</option>`).join('')}</select><select name="routeId">${routes.map(r=>`<option value="${r.id}">${Utils.esc(r.name)}</option>`).join('')}</select><button class="btn">Assign</button></form>
+      <table><tbody>${assigns.map(a=>`<tr><td>${Utils.esc((students.find(s=>s.id===a.studentId)||{}).name||a.studentId)}</td><td>${Utils.esc((routes.find(r=>r.id===a.routeId)||{}).name||a.routeId)}</td></tr>`).join('')}</tbody></table></div>
+    </div>`;
+  };
+  return { view };
+})();
+
+/* ======================================================
+   17. SETTINGS MODULE
+====================================================== */
+const Settings = (() => {
+  const get = async (id, fallback={}) => (await DB.getById('settings', id)) || { id, ...fallback };
+  const save = async (id, data) => {
+    const row = await get(id, {});
+    const merged = { ...row, ...data, id, group:id };
+    if (row.createdAt) await DB.update('settings', merged); else await DB.add('settings', merged);
+    await Audit.log('edit', 'settings', { id });
+    await Backup.auto(`settings:${id}`);
+  };
+
+  const getSchoolProfile = async () => get('school_profile', { name:'Sunrise Public School', address:'MG Road, Jaipur', contact:'+91-9876543210', logo:'SPS' });
+
+  const currentSession = () => {
+    const n = new Date();
+    const y = n.getMonth() >= 3 ? n.getFullYear() : n.getFullYear() - 1;
+    return `${y}-${y+1}`;
+  };
+
+  const view = async () => {
+    const tab = AppState.ui.settingsTab;
+    const school = await getSchoolProfile();
+    const theme = await get('theme', { mode: AppState.theme });
+    const receipt = await get('receipt', { prefix: 'RCPT', note: 'Thank you for payment' });
+    const backup = await get('backup', { auto: true });
+    const roles = await DB.getAll('roles');
+    const users = await DB.getAll('users');
+
+    const tabs = ['school','theme','receipt','backup','users','roles','safeguards'];
+    const section = tab==='school' ? `<form id="schoolProfileForm" class="grid"><input name="name" value="${Utils.esc(school.name)}" required /><input name="logo" value="${Utils.esc(school.logo||'')}" /><input name="contact" value="${Utils.esc(school.contact)}"/><textarea name="address">${Utils.esc(school.address)}</textarea><button class="btn">Save School Profile</button></form>
+      <p>Academic Session: <b>${currentSession()}</b> (Auto-detected, April 1 to March 31)</p>`
+    : tab==='theme' ? `<form id="themeForm" class="grid"><select name="mode"><option ${theme.mode==='light'?'selected':''}>light</option><option ${theme.mode==='dark'?'selected':''}>dark</option></select><button class="btn">Save Theme</button></form>`
+    : tab==='receipt' ? `<form id="receiptForm" class="grid"><input name="prefix" value="${Utils.esc(receipt.prefix)}"/><textarea name="note">${Utils.esc(receipt.note)}</textarea><button class="btn">Save Receipt Settings</button></form>`
+    : tab==='backup' ? `<form id="backupSetForm" class="grid"><select name="auto"><option value="true" ${backup.auto?'selected':''}>Auto backup enabled</option><option value="false" ${!backup.auto?'selected':''}>Auto backup disabled</option></select><button class="btn">Save Backup Settings</button></form><p class="muted">Auto backup runs after successful mutation commit.</p>`
+    : tab==='users' ? `<div class="split-2"><form id="userForm" class="grid"><input name="username" required placeholder="username"/><input name="name" required placeholder="display name"/><select name="roleId">${roles.map(r=>`<option value="${r.id}">${Utils.esc(r.name)}</option>`).join('')}</select><input name="password" required type="password" placeholder="Temp password"/><button class="btn">Create User</button></form><table><tbody>${users.map(u=>`<tr><td>${Utils.esc(u.username)}</td><td>${Utils.esc(u.name)}</td><td>${Utils.esc((roles.find(r=>r.id===u.roleId)||{}).name||u.roleId)}</td></tr>`).join('')}</tbody></table></div>`
+    : tab==='roles' ? `<form id="rolePermForm" class="grid"><select name="roleId">${roles.map(r=>`<option value="${r.id}">${Utils.esc(r.name)}</option>`).join('')}</select><textarea name="permissions" placeholder="comma separated perms"></textarea><button class="btn">Update Permissions</button></form><table><thead><tr><th>Role</th><th>Permissions</th></tr></thead><tbody>${roles.map(r=>`<tr><td>${Utils.esc(r.name)}</td><td>${Utils.esc((r.permissions||[]).join(', '))}</td></tr>`).join('')}</tbody></table>`
+    : `<div class="card panel"><h3>Data Reset Safeguards</h3><p>Reset requires explicit confirmation phrase <b>RESET SCHOOL ERP</b>.</p><input id="resetConfirm" placeholder="Type confirmation phrase"/><button class="btn danger" data-action="hard-reset">Reset Business Data</button></div>`;
+
+    return `<div class="tabs">${tabs.map(t=>`<button class="tab-btn ${tab===t?'active':''}" data-action="settings-tab" data-tab="${t}">${t.toUpperCase()}</button>`).join('')}</div><div class="card panel">${section}</div>`;
+  };
+
+  return { view, get, save, getSchoolProfile, currentSession };
+})();
+
+/* ======================================================
+   18. BACKUP/RESTORE MODULE
+====================================================== */
+const Backup = (() => {
+  const createSnapshot = async (mode='manual', reason='') => {
+    const data = await DB.snapshotAll();
+    const meta = {
+      timestamp: Utils.now(),
+      appVersion: AppState.version,
+      mode,
+      reason,
+      counts: Object.fromEntries(Object.entries(data).map(([k,v])=>[k,v.length]))
+    };
+    const payload = { meta, data };
+    payload.meta.checksum = await Utils.checksum(payload.data);
+    const row = { id: Utils.uid('bak'), ...payload.meta, payload };
+    await DB.add('backups', row);
+    await Audit.log('backup actions', 'backup', { mode, reason, checksum: payload.meta.checksum });
+    return row;
+  };
+
+  const auto = async (reason='mutation') => {
+    const set = await Settings.get('backup', { auto:true });
+    if (!set.auto) return;
+    try {
+      await createSnapshot('auto', reason);
+      await Notifications.push('backup', `Auto backup success: ${reason}`, 'success');
+    } catch (e) {
+      await Notifications.push('backup', `Auto backup failed: ${e.message}`, 'error');
+    }
+  };
+
+  const manualDownload = async () => {
+    const snap = await createSnapshot('manual', 'manual download');
+    Utils.download(`school_erp_backup_${Date.now()}.json`, JSON.stringify(snap.payload, null, 2));
+    Toast.show('Backup downloaded', 'success');
+  };
+
+  const restore = async (payload, mode='merge') => {
+    if (!payload?.data || !payload?.meta) throw new Error('Invalid backup file');
+    const check = await Utils.checksum(payload.data);
+    if (check !== payload.meta.checksum) throw new Error('Integrity check failed');
+
+    const summary = Object.entries(payload.data).map(([k,v])=>`${k}: ${v.length}`).join('\n');
+    if (!confirm(`Restore preview:\n${summary}\n\nProceed with ${mode} restore?`)) return;
+
+    for (const [store, rows] of Object.entries(payload.data)) {
+      if (!DB.stores[store]) continue;
+      if (mode === 'overwrite') {
+        const old = await DB.getAll(store);
+        await Promise.all(old.map(r => DB.delete(store, r.id)));
+      }
+      for (const row of rows) {
+        const existing = await DB.getById(store, row.id);
+        if (!existing) await DB.add(store, row);
+        else if (mode === 'overwrite') await DB.update(store, row);
+      }
+    }
+    await Audit.log('restore', 'backup', { mode, timestamp: payload.meta.timestamp });
+    await Notifications.push('backup', `Restore completed (${mode})`, 'success');
+    Router.render();
+  };
+
+  const view = async () => {
+    const all = (await DB.getAll('backups')).sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp));
+    return `<div class="split-2">
+      <div class="card panel"><h3>Backup</h3><p>Automatic backups run on successful committed mutations.</p><div class="toolbar"><button class="btn" data-action="manual-backup">Create & Download JSON Backup</button></div>
+      <table><thead><tr><th>Timestamp</th><th>Mode</th><th>Version</th><th>Checksum</th></tr></thead><tbody>${all.slice(0,15).map(b=>`<tr><td>${Utils.formatDate(b.timestamp)}</td><td>${Utils.esc(b.mode)}</td><td>${Utils.esc(b.appVersion)}</td><td><small>${Utils.esc(b.checksum.slice(0,16))}...</small></td></tr>`).join('')}</tbody></table></div>
+      <div class="card panel"><h3>Restore</h3><input type="file" id="restoreFile" accept="application/json" /><div class="toolbar"><button class="btn warning" data-action="restore-merge">Restore (Merge)</button><button class="btn danger" data-action="restore-overwrite">Restore (Overwrite)</button></div>
+      <p class="muted">No silent overwrite. Preview summary and checksum validation enforced.</p></div>
+    </div>`;
+  };
+
+  return { view, createSnapshot, auto, manualDownload, restore };
+})();
+
+/* ======================================================
+   21. WHATSAPP SIMULATION MODULE
+====================================================== */
+const WhatsAppSim = (() => {
+  const send = async ({ studentId, template='fee_reminder', message }) => {
+    const entry = { id: Utils.uid('msg'), studentId, template, message, status:'queued', tries:0, createdAt:Utils.now(), updatedAt:Utils.now() };
+    await DB.add('messages', entry);
+    processQueue();
+  };
+
+  const processQueue = async () => {
+    const q = (await DB.query('messages', m=>m.status==='queued' || m.status==='retry')).slice(0,8);
+    for (const m of q) {
+      m.status='sending'; m.updatedAt=Utils.now(); await DB.update('messages', m);
+      await new Promise(r=>setTimeout(r, 120 + Math.random()*650));
+      const ok = Math.random() > 0.15;
+      m.tries += 1;
+      m.status = ok ? 'sent' : (m.tries >= 3 ? 'failed' : 'retry');
+      m.updatedAt = Utils.now();
+      await DB.update('messages', m);
+      await DB.add('audit_logs', { id: Utils.uid('aud'), action:'message', module:'whatsapp', details:{ id:m.id, status:m.status }, userId:AppState.currentUser?.id||'system', createdAt:Utils.now(), updatedAt:Utils.now() });
+    }
+  };
+
+  const view = async () => {
+    const students = await DB.query('students', s=>!s.isDeleted);
+    const logs = (await DB.getAll('messages')).sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+    const queued = logs.filter(l=>l.status==='queued' || l.status==='retry').length;
+    const failed = logs.filter(l=>l.status==='failed').length;
+    return `<div class="split-2"><div class="card panel"><h3>WhatsApp Config (API-ready placeholder)</h3>
+      <form id="waConfigForm" class="grid"><input name="apiUrl" placeholder="API URL (future)"/><input name="apiToken" placeholder="API token (future)"/><textarea name="templates" placeholder="Template map JSON"></textarea><button class="btn secondary">Save Config</button></form>
+      <h4>Send Message</h4><form id="waSendForm" class="grid"><select name="studentId">${students.map(s=>`<option value="${s.id}">${Utils.esc(s.name)} (${Utils.esc(s.guardianMobile)})</option>`).join('')}</select><select name="template"><option value="fee_reminder">Fee Reminder</option><option value="receipt_share">Receipt Share</option><option value="custom">Custom</option></select><textarea name="message" placeholder="Message"></textarea><button class="btn">Queue Send</button></form>
+      <p><span class="badge warning">Queue: ${queued}</span> <span class="badge danger">Failed: ${failed}</span></p></div>
+      <div class="card panel"><h3>Delivery Logs</h3><div class="table-wrap"><table><thead><tr><th>Time</th><th>Student</th><th>Template</th><th>Status</th><th>Tries</th></tr></thead><tbody>${logs.map(l=>`<tr><td>${Utils.formatDate(l.createdAt)}</td><td>${Utils.esc((students.find(s=>s.id===l.studentId)||{}).name||l.studentId)}</td><td>${Utils.esc(l.template)}</td><td>${Utils.esc(l.status)}</td><td>${l.tries}</td></tr>`).join('')}</tbody></table></div></div></div>`;
+  };
+  return { view, send, processQueue };
+})();
+
+/* ======================================================
+   22. ROUTER/NAVIGATION MODULE
+====================================================== */
+const Router = (() => {
+  const routes = {
+    '#dashboard': { title:'Dashboard', perm:'dashboard.view', view: Dashboard.view },
+    '#students': { title:'Students', perm:'students.view', view: Students.view },
+    '#fees-master': { title:'Fees Master', perm:'fees.master', view: FeesMaster.view },
+    '#fees': { title:'Fees Transactions', perm:'fees.collect', view: FeesTxn.view },
+    '#accounts': { title:'Accounts', perm:'accounts.view', view: Accounts.view },
+    '#reports': { title:'Reports', perm:'reports.view', view: Reports.view },
+    '#transport': { title:'Transport', perm:'transport.view', view: Transport.view },
+    '#settings': { title:'Settings', perm:'settings.view', view: Settings.view },
+    '#backup': { title:'Backup & Restore', perm:'backup.view', view: Backup.view },
+    '#audit': { title:'Audit Logs', perm:'audit.view', view: async () => {
+      const rows = await Audit.list();
+      return `<div class="card panel"><h3>Audit Logs</h3><div class="table-wrap"><table><thead><tr><th>When</th><th>Action</th><th>Module</th><th>User</th><th>Details</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${Utils.formatDate(r.createdAt)}</td><td>${Utils.esc(r.action)}</td><td>${Utils.esc(r.module)}</td><td>${Utils.esc(r.userId)}</td><td><small>${Utils.esc(JSON.stringify(r.details))}</small></td></tr>`).join('')}</tbody></table></div></div>`;
+    }},
+    '#messages': { title:'WhatsApp Simulation', perm:'messages.view', view: WhatsAppSim.view }
+  };
+
+  const navItems = Object.keys(routes).map(k => ({ hash:k, title: routes[k].title }));
+
+  const renderLogin = () => {
+    const root = document.getElementById('appRoot');
+    root.innerHTML = document.getElementById('tplLogin').innerHTML;
+  };
+
+  const renderShell = async () => {
+    document.getElementById('appRoot').innerHTML = document.getElementById('tplAppShell').innerHTML;
+    const nav = document.getElementById('navList');
+    nav.innerHTML = navItems.map(n=>`<a class="nav-link" href="${n.hash}" data-nav="${n.hash}">${n.title}</a>`).join('');
+    const top = document.getElementById('topActions');
+    top.innerHTML = `<button class="btn secondary" data-action="toggle-sidebar">☰</button>
+      <button class="btn secondary" data-action="toggle-theme">${AppState.theme==='dark'?'☀':'🌙'}</button>
+      <span class="badge">${Utils.esc(AppState.currentUser.name)} (${Utils.esc(AppState.currentUser.username)})</span>
+      <span id="statusWrap" class="badge"><span class="online-dot"></span> <span id="onlineText">${AppState.online?'Online':'Offline'}</span></span>
+      <button class="btn secondary" data-action="open-notifications">🔔</button>
+      <button class="btn danger" data-action="logout">Logout</button>`;
+
+    const school = await Settings.getSchoolProfile();
+    document.getElementById('schoolNameMini').textContent = school.name;
+    document.getElementById('schoolLogoMini').textContent = (school.logo||'S').slice(0,3).toUpperCase();
+    document.getElementById('sessionLabel').textContent = `Session ${Settings.currentSession()}`;
+  };
+
+  const renderRouteView = async () => {
+    const hash = location.hash || '#dashboard';
+    const route = routes[hash] || routes['#dashboard'];
+    if (!await Permission.can(route.perm)) {
+      document.getElementById('viewContainer').innerHTML = `<div class="card panel"><h3>Access Denied</h3><p>You do not have permission for this module.</p></div>`;
+      return;
+    }
+    document.getElementById('pageTitle').textContent = route.title;
+    document.getElementById('breadcrumbs').textContent = `Home / ${route.title}`;
+    document.querySelectorAll('.nav-link').forEach(a => a.classList.toggle('active', a.dataset.nav === hash));
+    document.getElementById('viewContainer').innerHTML = `<div class="card panel"><p class="muted">Loading...</p></div>`;
+    document.getElementById('viewContainer').innerHTML = await route.view();
+  };
+
+  const render = async () => {
+    if (!AppState.currentUser) {
+      renderLogin();
+      return;
+    }
+    await renderShell();
+    await renderRouteView();
+  };
+
+  return { render, renderRouteView, routes };
+})();
+
+/* ======================================================
+   23. SEED/DEMO DATA MODULE
+====================================================== */
+const Seed = (() => {
+  const seedNeeded = async () => (await DB.getAll('users')).length === 0;
+
+  const run = async () => {
+    if (!await seedNeeded()) return;
+
+    const roleDefs = [
+      { id:'role_admin', name:'Admin', permissions:['dashboard.view','students.view','fees.master','fees.collect','accounts.view','reports.view','transport.view','settings.view','backup.view','audit.view','messages.view','export.all'] },
+      { id:'role_accountant', name:'Accountant', permissions:['dashboard.view','students.view','fees.master','fees.collect','accounts.view','reports.view','backup.view','messages.view'] },
+      { id:'role_clerk', name:'Clerk', permissions:['dashboard.view','students.view','fees.collect','transport.view','messages.view'] },
+      { id:'role_teacher', name:'Teacher', permissions:['dashboard.view','students.view','reports.view'] }
+    ];
+    await DB.bulkAdd('roles', roleDefs.map(r=>({ ...r, createdAt:Utils.now(), updatedAt:Utils.now() })));
+
+    const userPass = await Auth.hashPassword('Pass@123');
+    const users = [
+      { id:'u_admin', username:'admin', name:'System Admin', roleId:'role_admin', passwordHash:userPass, active:true },
+      { id:'u_accountant', username:'accountant', name:'Fee Accountant', roleId:'role_accountant', passwordHash:userPass, active:true },
+      { id:'u_clerk', username:'clerk', name:'Front Desk Clerk', roleId:'role_clerk', passwordHash:userPass, active:true },
+      { id:'u_teacher', username:'teacher', name:'Class Teacher', roleId:'role_teacher', passwordHash:userPass, active:true }
+    ];
+    await DB.bulkAdd('users', users);
+
+    const classes = ['Nursery','LKG','UKG','1','2','3','4','5','6','7','8','9','10','11','12'].map((n,i)=>({ id:`cls_${i+1}`, name:`Class ${n}`, createdAt:Utils.now(), updatedAt:Utils.now() }));
+    await DB.bulkAdd('classes', classes);
+    const secs = ['A','B','C'];
+    await DB.bulkAdd('sections', classes.flatMap(c => secs.map((s,ix)=>({ id:Utils.uid('sec'), name:s, classId:c.id, createdAt:Utils.now(), updatedAt:Utils.now() }))));
+
+    await DB.add('sessions', { id:'sess_current', name:Settings.currentSession(), isCurrent:true, startsOn:`${Settings.currentSession().slice(0,4)}-04-01`, endsOn:`${Number(Settings.currentSession().slice(0,4))+1}-03-31` });
+    await Settings.save('school_profile', { name:'Sunrise Public School', logo:'SPS', address:'15 MG Road, Jaipur, Rajasthan', contact:'+91-9000000001' });
+    await Settings.save('theme', { mode:'light' });
+    await Settings.save('backup', { auto:true });
+
+    const feeHeads = [
+      { id:'fh_tuition', name:'Tuition Fee', type:'monthly', amount:1800, active:true },
+      { id:'fh_dev', name:'Development Fee', type:'quarterly', amount:1000, active:true },
+      { id:'fh_exam', name:'Exam Fee', type:'annual', amount:1500, active:true },
+      { id:'fh_transport', name:'Transport Fee', type:'monthly', amount:900, active:true },
+      { id:'fh_activity', name:'Activity Fee', type:'one-time', amount:700, active:true }
+    ];
+    await DB.bulkAdd('fee_heads', feeHeads);
+    await DB.bulkAdd('concessions', [
+      { id:'con_ews', name:'EWS', percent:50 },
+      { id:'con_sibling', name:'Sibling', percent:10 },
+      { id:'con_staff', name:'Staff Child', percent:35 }
+    ]);
+
+    const heads = [
+      { id:'h_fee', name:'Fee Collection', type:'income', openingBalance:0 },
+      { id:'h_donation', name:'Donation', type:'income', openingBalance:0 },
+      { id:'h_salary', name:'Salary', type:'expense', openingBalance:0 },
+      { id:'h_utility', name:'Utility Bills', type:'expense', openingBalance:0 },
+      { id:'h_transport_exp', name:'Transport Expense', type:'expense', openingBalance:0 }
+    ];
+    await DB.bulkAdd('income_expense_heads', heads);
+
+    await DB.bulkAdd('transport_routes', [
+      { id:'rt_1', name:'Route 1 - Civil Lines', fee:900 },
+      { id:'rt_2', name:'Route 2 - Vaishali Nagar', fee:1100 },
+      { id:'rt_3', name:'Route 3 - Mansarovar', fee:1000 }
+    ]);
+    await DB.bulkAdd('vehicles', [
+      { id:'veh_1', number:'RJ14-SC-1001', driver:'Rakesh', mobile:'9876500001' },
+      { id:'veh_2', number:'RJ14-SC-1002', driver:'Mohan', mobile:'9876500002' }
+    ]);
+
+    const firstNames = ['Aarav','Vivaan','Aditya','Vihaan','Ishita','Ananya','Diya','Saanvi','Rohan','Kunal','Meera','Nisha','Kabir','Arjun','Riya','Pihu','Yash','Dev','Om','Naitik'];
+    const lastNames = ['Sharma','Verma','Singh','Jain','Gupta','Khan','Patel','Yadav','Mehta','Agarwal'];
+    const students = [];
+    for (let i=1;i<=60;i++) {
+      const c = classes[i % classes.length];
+      const name = `${firstNames[i % firstNames.length]} ${lastNames[i % lastNames.length]}`;
+      const route = i%3===0 ? `Route ${1 + (i%3)} - ${['Civil Lines','Vaishali Nagar','Mansarovar'][i%3]}` : '';
+      students.push({
+        id:`stu_${i}`,
+        admissionNo:`ADM${String(1000+i)}`,
+        rollNo:String(i),
+        name,
+        className:c.name,
+        sectionName:secs[i%3],
+        gender:i%2===0?'Male':'Female',
+        dob:`20${10 + (i%10)}-${String((i%12)+1).padStart(2,'0')}-${String((i%28)+1).padStart(2,'0')}`,
+        fatherName:`Mr ${lastNames[(i+1)%lastNames.length]}`,
+        motherName:`Mrs ${lastNames[(i+2)%lastNames.length]}`,
+        guardianMobile:`9${String(100000000 + i).padStart(9,'0')}`,
+        alternateMobile:`8${String(100000000 + i).padStart(9,'0')}`,
+        address:`House ${i}, Jaipur`,
+        caste:['General','OBC','SC','ST'][i%4],
+        religion:['Hindu','Muslim','Sikh','Jain'][i%4],
+        category:['General','EWS','RTE'][i%3],
+        aadhaarNo:String(100000000000 + i),
+        house:['Red','Blue','Green','Yellow'][i%4],
+        photo:'',
+        admissionDate:`2025-${String((i%12)+1).padStart(2,'0')}-10`,
+        transportOpted:route?'Yes':'No',
+        routeName:route,
+        status:i%17===0?'inactive':'active',
+        notes:'',
+        feeDue: (i%5===0 ? 2000 : i%7===0 ? 500 : 0),
+        isDeleted:false,
+        createdAt:Utils.now(),
+        updatedAt:Utils.now()
+      });
+    }
+    await DB.bulkAdd('students', students);
+
+    await DB.bulkAdd('student_fee_assignments', students.map(s => ({
+      id:Utils.uid('sfa'), studentId:s.id, sessionId:'sess_current', feeSchemeId:'default', concessionAmount:s.category==='EWS'?500:0, createdAt:Utils.now(), updatedAt:Utils.now()
+    })));
+
+    for (let i=0;i<20;i++) {
+      const st = students[i];
+      const txn = {
+        id:Utils.uid('fee'),
+        receiptNo:`RCPT-${String(i+1).padStart(5,'0')}`,
+        studentId: st.id,
+        date: new Date(Date.now()- i*86400000).toISOString().slice(0,10),
+        items:[{ head:'Tuition Fee', amount:1800 }, { head:'Development Fee', amount:600 }],
+        fine:i%4===0?50:0,
+        discount:i%6===0?100:0,
+        totalAmount:2350,
+        paidAmount:2200,
+        balance:150,
+        mode:['cash','upi','card'][i%3],
+        status: i===4 ? 'cancelled' : 'active',
+        cancelReason: i===4 ? 'Wrong student' : ''
+      };
+      await DB.add('fee_transactions', txn);
+      if (txn.status!=='cancelled') await Accounts.autoIncomeFromFee(txn, st);
+    }
+
+    await Accounts.addVoucher({ type:'expense', amount:35000, headId:'h_salary', note:'Monthly salary payout', date:Utils.todayISO(), ref:'SAL-MAR' });
+    await Accounts.addVoucher({ type:'expense', amount:5400, headId:'h_utility', note:'Electricity bill', date:Utils.todayISO(), ref:'UTIL-APR' });
+
+    await DB.bulkAdd('transport_assignments', students.filter(s=>s.transportOpted==='Yes').slice(0,18).map((s,i)=>({ id:Utils.uid('ta'), studentId:s.id, routeId:['rt_1','rt_2','rt_3'][i%3], vehicleId:['veh_1','veh_2'][i%2], createdAt:Utils.now(), updatedAt:Utils.now() })));
+
+    await DB.bulkAdd('notifications', [
+      { id:Utils.uid('ntf'), type:'fees', message:'15 dues pending for current month', level:'warning', read:false, createdAt:Utils.now(), updatedAt:Utils.now() },
+      { id:Utils.uid('ntf'), type:'system', message:'Initial seed data completed', level:'success', read:false, createdAt:Utils.now(), updatedAt:Utils.now() }
+    ]);
+
+    await Audit.log('import', 'seed', { students: students.length, users: users.length });
+    await Backup.createSnapshot('auto', 'initial seed');
+  };
+
+  return { run };
+})();
+
+/* ======================================================
+   GLOBAL EVENT HANDLERS (Event Delegation)
+====================================================== */
+document.addEventListener('submit', async (e) => {
+  try {
+    if (e.target.id === 'loginForm') {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      await Auth.login(fd.get('username').trim(), fd.get('password'));
+      await Router.render();
+      return;
+    }
+    if (!AppState.currentUser) return;
+
+    if (e.target.id === 'studentForm') {
+      e.preventDefault();
+      const id = e.target.dataset.id || null;
+      const fd = Object.fromEntries(new FormData(e.target));
+      const result = await Students.upsert(fd, id);
+      e.target.querySelectorAll('[data-err]').forEach(x => x.textContent = '');
+      if (!result.ok) {
+        Object.entries(result.errors).forEach(([k,v]) => {
+          const el = e.target.querySelector(`[data-err="${k}"]`); if (el) el.textContent = v;
+        });
+        return;
+      }
+      Dialog.close();
+      Toast.show('Student saved', 'success');
+      await Router.renderRouteView();
+      return;
+    }
+
+    if (e.target.id === 'feeHeadForm') {
+      e.preventDefault();
+      await Permission.ensure('fees.master');
+      const fd = Object.fromEntries(new FormData(e.target));
+      await DB.add('fee_heads', { id:Utils.uid('fh'), name:fd.name, type:fd.type, amount:Utils.parseNum(fd.amount), active:true });
+      await Audit.log('add','fees_master',{head:fd.name}); await Backup.auto('fee head add');
+      Toast.show('Fee head added', 'success'); await Router.renderRouteView(); return;
+    }
+
+    if (e.target.id === 'concessionForm') {
+      e.preventDefault();
+      const fd = Object.fromEntries(new FormData(e.target));
+      await DB.add('concessions', { id:Utils.uid('con'), name:fd.name, percent:Utils.parseNum(fd.percent) });
+      await Audit.log('add','fees_master',{concession:fd.name}); await Backup.auto('concession add');
+      await Router.renderRouteView(); return;
+    }
+
+    if (e.target.id === 'schemeForm') {
+      e.preventDefault();
+      const fd = Object.fromEntries(new FormData(e.target));
+      await DB.add('fee_schemes', { id:Utils.uid('sch'), ...fd });
+      await Audit.log('add','fees_master',{scheme:fd.name}); await Backup.auto('scheme add');
+      await Router.renderRouteView(); return;
+    }
+
+    if (e.target.id === 'feeCollectForm') {
+      e.preventDefault();
+      await Permission.ensure('fees.collect');
+      const fd = Object.fromEntries(new FormData(e.target));
+      let heads;
+      try { heads = JSON.parse(fd.heads); } catch { throw new Error('Invalid fee heads JSON'); }
+      const txn = await FeesTxn.collect({ studentId:fd.studentId, items:heads, fine:fd.fine, discount:fd.discount, paidAmount:Utils.parseNum(fd.paidAmount), mode:fd.mode });
+      Toast.show(`Receipt ${txn.receiptNo} generated`, 'success');
+      await Router.renderRouteView();
+      return;
+    }
+
+    if (e.target.id === 'voucherForm') {
+      e.preventDefault();
+      await Permission.ensure('accounts.view');
+      const fd = Object.fromEntries(new FormData(e.target));
+      await Accounts.addVoucher(fd);
+      Toast.show('Voucher posted', 'success');
+      await Router.renderRouteView();
+      return;
+    }
+
+    if (e.target.id === 'routeForm') {
+      e.preventDefault();
+      const fd = Object.fromEntries(new FormData(e.target));
+      await DB.add('transport_routes', { id:Utils.uid('rt'), name:fd.name, fee:Utils.parseNum(fd.fee) });
+      await Audit.log('add','transport',{route:fd.name}); await Backup.auto('route add');
+      await Router.renderRouteView(); return;
+    }
+
+    if (e.target.id === 'vehicleForm') {
+      e.preventDefault();
+      const fd = Object.fromEntries(new FormData(e.target));
+      if (fd.mobile && !Utils.isValidMobile(fd.mobile)) throw new Error('Driver mobile invalid');
+      await DB.add('vehicles', { id:Utils.uid('veh'), number:fd.number, driver:fd.driver, mobile:fd.mobile });
+      await Audit.log('add','transport',{vehicle:fd.number}); await Backup.auto('vehicle add');
+      await Router.renderRouteView(); return;
+    }
+
+    if (e.target.id === 'transportAssignForm') {
+      e.preventDefault();
+      const fd = Object.fromEntries(new FormData(e.target));
+      await DB.add('transport_assignments', { id:Utils.uid('ta'), studentId:fd.studentId, routeId:fd.routeId });
+      await Audit.log('add','transport',{studentId:fd.studentId,routeId:fd.routeId}); await Backup.auto('transport assign');
+      await Router.renderRouteView(); return;
+    }
+
+    if (e.target.id === 'schoolProfileForm') {
+      e.preventDefault();
+      await Settings.save('school_profile', Object.fromEntries(new FormData(e.target)));
+      Toast.show('School profile saved', 'success');
+      await Router.render(); return;
+    }
+
+    if (e.target.id === 'themeForm') {
+      e.preventDefault();
+      const fd = Object.fromEntries(new FormData(e.target));
+      await Settings.save('theme', { mode:fd.mode });
+      AppState.theme = fd.mode; document.body.classList.toggle('dark', fd.mode==='dark');
+      Toast.show('Theme updated', 'success');
+      await Router.render(); return;
+    }
+
+    if (e.target.id === 'receiptForm') {
+      e.preventDefault();
+      await Settings.save('receipt', Object.fromEntries(new FormData(e.target)));
+      Toast.show('Receipt settings saved', 'success');
+      await Router.renderRouteView(); return;
+    }
+
+    if (e.target.id === 'backupSetForm') {
+      e.preventDefault();
+      const fd = Object.fromEntries(new FormData(e.target));
+      await Settings.save('backup', { auto: fd.auto === 'true' });
+      Toast.show('Backup settings saved', 'success');
+      await Router.renderRouteView(); return;
+    }
+
+    if (e.target.id === 'userForm') {
+      e.preventDefault();
+      await Permission.ensure('settings.view');
+      const fd = Object.fromEntries(new FormData(e.target));
+      const exists = await DB.query('users', u => u.username === fd.username);
+      if (exists.length) throw new Error('Username already exists');
+      const hash = await Auth.hashPassword(fd.password);
+      await DB.add('users', { id:Utils.uid('u'), username:fd.username, name:fd.name, roleId:fd.roleId, passwordHash:hash, active:true });
+      await Audit.log('add','users',{username:fd.username}); await Backup.auto('user add');
+      await Router.renderRouteView(); return;
+    }
+
+    if (e.target.id === 'rolePermForm') {
+      e.preventDefault();
+      const fd = Object.fromEntries(new FormData(e.target));
+      const role = await DB.getById('roles', fd.roleId); if (!role) throw new Error('Role not found');
+      role.permissions = fd.permissions.split(',').map(x=>x.trim()).filter(Boolean);
+      await DB.update('roles', role);
+      await Audit.log('edit','roles',{role:role.name}); await Backup.auto('role perm update');
+      await Router.renderRouteView(); return;
+    }
+
+    if (e.target.id === 'waSendForm') {
+      e.preventDefault();
+      const fd = Object.fromEntries(new FormData(e.target));
+      await WhatsAppSim.send(fd);
+      Toast.show('Message queued', 'success');
+      await Router.renderRouteView();
+      return;
+    }
+
+    if (e.target.id === 'waConfigForm') {
+      e.preventDefault();
+      await Settings.save('wa_config', Object.fromEntries(new FormData(e.target)));
+      Toast.show('WhatsApp config saved (simulated)', 'success');
+      return;
+    }
+  } catch (err) {
+    if (e.target.id === 'loginForm') document.getElementById('loginError').textContent = err.message;
+    else Toast.show(err.message, 'error');
+  }
+});
+
+document.addEventListener('click', async (e) => {
+  const actionEl = e.target.closest('[data-action]');
+  if (!actionEl) {
+    const jump = e.target.closest('[data-jump]');
+    if (jump) location.hash = jump.dataset.jump.split('?')[0];
+    return;
+  }
+  const action = actionEl.dataset.action;
+  try {
+    if (action === 'logout') return Auth.logout();
+    if (action === 'toggle-sidebar') return document.getElementById('sidebar')?.classList.toggle('open');
+    if (action === 'toggle-theme') {
+      AppState.theme = AppState.theme === 'dark' ? 'light' : 'dark';
+      document.body.classList.toggle('dark', AppState.theme === 'dark');
+      await Settings.save('theme', { mode:AppState.theme });
+      await Router.render();
+      return;
+    }
+    if (action === 'open-notifications') return Notifications.renderDrawer();
+    if (action === 'close-drawer') return document.getElementById('notificationDrawer').classList.remove('open');
+    if (action === 'close-modal') return Dialog.close();
+
+    if (action === 'add-student') { Dialog.open(`<h3>Add Student</h3>${await Students.formHtml()}`); return; }
+    if (action === 'edit-student') {
+      const st = await DB.getById('students', actionEl.dataset.id);
+      Dialog.open(`<h3>Edit Student</h3>${await Students.formHtml(st)}`); return;
+    }
+    if (action === 'view-student') {
+      const st = await DB.getById('students', actionEl.dataset.id);
+      Dialog.open(`<h3>Student Profile</h3><div class="split-2"><div><p><b>${Utils.esc(st.name)}</b> (${Utils.esc(st.admissionNo)})</p><p>Class: ${Utils.esc(st.className)}-${Utils.esc(st.sectionName)}</p><p>Mobile: ${Utils.esc(st.guardianMobile)}</p><p>Address: ${Utils.esc(st.address)}</p><p>Status: ${Utils.esc(st.status)}</p></div><div>${st.photo?`<img src="${Utils.esc(st.photo)}" alt="photo" style="max-width:160px">`:'<div class="muted">No photo</div>'}</div></div><button class="btn secondary" data-action="close-modal">Close</button>`); return;
+    }
+    if (action === 'delete-student') {
+      const ok = await Dialog.confirm('Delete student', 'Soft delete this student record?', 'Delete');
+      if (!ok) return;
+      await Students.softDelete(actionEl.dataset.id);
+      Toast.show('Student deleted', 'success');
+      await Router.renderRouteView();
+      return;
+    }
+    if (action === 'student-prev') { AppState.ui.studentPage = Math.max(1, AppState.ui.studentPage - 1); return Router.renderRouteView(); }
+    if (action === 'student-next') { AppState.ui.studentPage += 1; return Router.renderRouteView(); }
+    if (action === 'bulk-student') { Students.bulkDialog(); return; }
+
+    if (action === 'manual-backup') return Backup.manualDownload();
+    if (action === 'restore-merge' || action === 'restore-overwrite') {
+      const input = document.getElementById('restoreFile');
+      if (!input?.files?.[0]) throw new Error('Select backup JSON file first');
+      const txt = await input.files[0].text();
+      await Backup.restore(JSON.parse(txt), action === 'restore-overwrite' ? 'overwrite' : 'merge');
+      return;
+    }
+
+    if (action === 'print-receipt') return FeesTxn.renderReceipt(actionEl.dataset.id, false);
+    if (action === 'reprint-receipt') return FeesTxn.renderReceipt(actionEl.dataset.id, true);
+    if (action === 'cancel-receipt') {
+      const reason = prompt('Cancellation reason:'); if (!reason) return;
+      await FeesTxn.cancelReceipt(actionEl.dataset.id, reason);
+      Toast.show('Receipt cancelled', 'warning');
+      await Router.renderRouteView(); return;
+    }
+
+    if (action === 'report-tab') { AppState.ui.reportTab = actionEl.dataset.tab; return Router.renderRouteView(); }
+    if (action === 'settings-tab') { AppState.ui.settingsTab = actionEl.dataset.tab; return Router.renderRouteView(); }
+
+    if (action === 'print-defaulters') {
+      const rows = await Reports.feeDefaulter();
+      await Reports.renderPrintReport('Defaulter Report', `<table><thead><tr><th>Name</th><th>Class</th><th>Due</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${Utils.esc(r.name)}</td><td>${Utils.esc(r.className)}</td><td>${Utils.formatMoney(r.due)}</td></tr>`).join('')}</tbody></table>`);
+      return;
+    }
+    if (action === 'print-accounts-summary') {
+      const acc = await DB.getAll('accounts');
+      await Reports.renderPrintReport('Income & Expense Summary', `<table><thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Ref</th></tr></thead><tbody>${acc.map(a=>`<tr><td>${Utils.formatDate(a.date)}</td><td>${Utils.esc(a.type)}</td><td>${Utils.formatMoney(a.amount)}</td><td>${Utils.esc(a.ref||'')}</td></tr>`).join('')}</tbody></table>`);
+      return;
+    }
+
+    if (action === 'hard-reset') {
+      const val = document.getElementById('resetConfirm')?.value || '';
+      if (val !== 'RESET SCHOOL ERP') throw new Error('Confirmation phrase mismatch');
+      const ok = await Dialog.confirm('Hard reset', 'This will erase major business data stores. Continue?', 'Reset');
+      if (!ok) return;
+      const resetStores = ['students','student_fee_assignments','fee_transactions','accounts','vouchers','messages','transport_assignments','notifications','audit_logs','backups'];
+      for (const s of resetStores) {
+        const rows = await DB.getAll(s);
+        for (const r of rows) await DB.delete(s, r.id);
+      }
+      await Audit.log('delete', 'settings', { action:'hard reset' });
+      Toast.show('Data reset complete', 'warning');
+      await Router.renderRouteView();
+      return;
+    }
+  } catch (err) {
+    Toast.show(err.message, 'error');
+  }
+});
+
+document.addEventListener('input', Utils.debounce(async (e) => {
+  if (e.target.id === 'studentSearch') { AppState.ui.studentSearch = e.target.value; AppState.ui.studentPage = 1; await Router.renderRouteView(); }
+  if (e.target.id === 'studentClassFilter') { AppState.ui.studentClassFilter = e.target.value; AppState.ui.studentPage = 1; await Router.renderRouteView(); }
+  if (e.target.id === 'studentStatusFilter') { AppState.ui.studentStatusFilter = e.target.value; AppState.ui.studentPage = 1; await Router.renderRouteView(); }
+}), 220);
+
+/* bulk preview/import */
+document.addEventListener('click', async (e) => {
+  if (e.target.id === 'bulkPreviewBtn' || e.target.id === 'bulkImportBtn' || e.target.id === 'bulkExportBtn') {
+    const csv = document.getElementById('bulkCsv')?.value?.trim() || '';
+    if (e.target.id === 'bulkExportBtn') {
+      if (!await Permission.can('export.all')) throw new Error('Export restricted by role');
+      const rows = await Students.listFiltered();
+      const header = ['id',...Object.keys(rows[0]||{})];
+      const out = [header.join(',')].concat(rows.map(r => header.map(h => JSON.stringify(r[h] ?? '')).join(','))).join('\n');
+      Utils.download(`students_export_${Date.now()}.csv`, out, 'text/csv');
+      await Audit.log('export','students',{count:rows.length});
+      return;
+    }
+    if (!csv) throw new Error('Paste CSV first');
+    const lines = csv.split(/\r?\n/).filter(Boolean);
+    const header = lines[0].split(',').map(x=>x.trim());
+    const required = ['admissionNo','name','className','guardianMobile'];
+    const missing = required.filter(r=>!header.includes(r));
+    if (missing.length) throw new Error(`Missing columns: ${missing.join(', ')}`);
+    const rows = lines.slice(1).map(l => {
+      const cols = l.split(',');
+      const o = {}; header.forEach((h,i)=>o[h]=cols[i]?.trim()||'');
+      return o;
+    });
+    const existing = await DB.getAll('students');
+    const dups = rows.filter(r => existing.some(e=>e.admissionNo===r.admissionNo && !e.isDeleted));
+    const invalids = rows.filter(r => !Utils.isValidMobile(r.guardianMobile));
+    document.getElementById('bulkPreview').innerHTML = `<p>Total rows: ${rows.length} | Duplicates: ${dups.length} | Invalid mobile rows: ${invalids.length}</p>
+      <div class="table-wrap"><table><thead><tr>${header.map(h=>`<th>${Utils.esc(h)}</th>`).join('')}<th>Status</th></tr></thead><tbody>${rows.slice(0,100).map(r=>`<tr>${header.map(h=>`<td>${Utils.esc(r[h])}</td>`).join('')}<td>${dups.includes(r)?'Duplicate':invalids.includes(r)?'Invalid':'OK'}</td></tr>`).join('')}</tbody></table></div>`;
+    if (e.target.id === 'bulkImportBtn') {
+      const validRows = rows.filter(r => !dups.includes(r) && !invalids.includes(r));
+      for (const r of validRows) {
+        await Students.upsert({ ...r, status:r.status||'active', sectionName:r.sectionName||'A', transportOpted:r.transportOpted||'No' });
+      }
+      await Audit.log('import','students',{count:validRows.length, rejected: rows.length-validRows.length});
+      Toast.show(`Imported ${validRows.length}, rejected ${rows.length-validRows.length}`, 'success');
+      Dialog.close();
+      await Router.renderRouteView();
+    }
+  }
+});
+
+/* offline status */
+window.addEventListener('online', async () => {
+  AppState.online = true;
+  document.body.classList.remove('offline');
+  document.getElementById('onlineText') && (document.getElementById('onlineText').textContent = 'Online');
+  await Notifications.push('system', 'Back online', 'success');
+});
+window.addEventListener('offline', async () => {
+  AppState.online = false;
+  document.body.classList.add('offline');
+  document.getElementById('onlineText') && (document.getElementById('onlineText').textContent = 'Offline');
+  await Notifications.push('system', 'You are offline. Local operations continue.', 'warning');
+});
+window.addEventListener('hashchange', () => AppState.currentUser && Router.renderRouteView());
+document.getElementById('globalModal')?.addEventListener('click', (e) => { if (e.target.id === 'globalModal') Dialog.close(); });
+
+/* ======================================================
+   24. APP BOOTSTRAP / INIT MODULE
+====================================================== */
+(async function init() {
+  try {
+    AppState.db = await DB.openDB();
+    await Seed.run();
+    const theme = await Settings.get('theme', { mode:'light' });
+    AppState.theme = theme.mode || 'light';
+    document.body.classList.toggle('dark', AppState.theme === 'dark');
+
+    await Auth.restoreSession();
+    await Router.render();
+    Auth.setInactivityWatch();
+
+    setInterval(() => WhatsAppSim.processQueue(), 3000);
+    setInterval(async () => {
+      const pending = (await DB.query('students', s=>!s.isDeleted && (s.feeDue||0)>0)).length;
+      if (pending > 0) await DB.add('sync_queue', { id:Utils.uid('sync'), status:'pending', createdAt:Utils.now(), updatedAt:Utils.now(), note:`${pending} due reminders` });
+    }, 90000);
+  } catch (err) {
+    document.getElementById('appRoot').innerHTML = `<div class="login-wrap"><div class="card panel"><h2>Initialization Error</h2><p>${Utils.esc(err.message)}</p></div></div>`;
+  }
+})();
+
+/* Future PWA Upgrade
+  1) Add manifest.json with icons/theme/start_url.
+  2) Register service worker (service-worker.js) in bootstrap after DB init.
+  3) Cache app shell and runtime data sync endpoints.
+  4) Keep IndexedDB as source of truth and queue remote sync in sync_queue.
+*/
+</script>
 </body>
 </html>
